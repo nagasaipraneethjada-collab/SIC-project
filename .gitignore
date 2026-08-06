@@ -1,0 +1,35 @@
+# ===== Datasets (way too large for GitHub) =====
+asl_alphabet_train/
+asl_alphabet_test/
+second_dataset/
+
+# ===== Training cache files (multi-GB, regenerated automatically) =====
+train_cache*
+val_cache*
+
+# ===== Python virtual environments (regenerated from requirements.txt) =====
+venv/
+.venv/
+tf-gpu-env/
+
+# ===== Python cache =====
+__pycache__/
+*.pyc
+
+# ===== Node / frontend =====
+node_modules/
+dist/
+.pnpm-store/
+
+# ===== Logs =====
+train_log.txt
+*.log
+
+# ===== OS/editor clutter =====
+.DS_Store
+Thumbs.db
+.vscode/
+
+# ===== Large backup training scripts (optional - keep if you want them in repo) =====
+# train_gpu_backup.py
+# train_scratch_cnn_backup.py
