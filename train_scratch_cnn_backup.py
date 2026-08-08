@@ -38,12 +38,6 @@ LABELS_OUT = "class_labels.json"
 
 # =====================================================================
 # 2. LOAD AND SPLIT THE DATA
-# ---------------------------------------------------------------------
-# Ch.9 Unit 01 (Building CNN using TensorFlow) shows splitting a
-# dataset into a TRAINING set (used to update weights) and a
-# VALIDATION set (used only to check performance on unseen data - the
-# network never learns from it). We do exactly that here using
-# validation_split, holding back 20% of the images as validation data.
 # =====================================================================
 train_ds = tf.keras.utils.image_dataset_from_directory(
     TRAIN_DIR,
@@ -89,15 +83,7 @@ val_ds = val_ds.cache("val_cache").prefetch(buffer_size=AUTOTUNE)
 
 # =====================================================================
 # 3. BUILD THE CNN ("Building CNN using TensorFlow")
-# ---------------------------------------------------------------------
-# Your slides show this pattern for a CNN:
-#
-#   Input -> Conv -> Pool -> Conv -> Pool -> Flatten -> Dense -> Dense(softmax)
-#
-# We follow the exact same pattern below. The slide's example used
-# MNIST (28x28x1 greyscale digits, 10 classes); we use 128x128x3 color
-# hand-sign photos and 29 classes, so the numbers differ but the
-# structure taught is identical.
+
 # =====================================================================
 model = models.Sequential([
 
@@ -109,16 +95,6 @@ model = models.Sequential([
     # gradient descent (Ch.8 Unit 01) converge faster and more reliably.
     layers.Rescaling(1.0 / 255),
 
-    # ---- Data augmentation ----
-    # NOT from the syllabus - added deliberately based on real testing:
-    # confusion_report.py and manual webcam/upload testing showed the
-    # model struggling on photos with different lighting/background than
-    # the training set. These layers randomly vary brightness, contrast,
-    # flip, rotation, and zoom on each training image (training only -
-    # automatically skipped during prediction), so the model sees many
-    # simulated lighting/angle variations of the same photo instead of
-    # only ever seeing one fixed condition per image. This directly
-    # targets the generalization gap identified in testing.
     layers.RandomFlip("horizontal"),
     layers.RandomRotation(0.08),
     layers.RandomZoom(0.15),
@@ -132,12 +108,7 @@ model = models.Sequential([
     layers.RandomTranslation(0.1, 0.1),
 
     # ---- Convolution block 1 ----
-    # Conv2D: slides small learnable kernels (filters) across the image
-    # to produce "feature maps" - this is the convolution operation
-    # covered in Ch.9 Unit 01 (1.2 Components of CNN).
-    # 32 filters = 32 different feature maps learned at this layer.
-    # activation="relu" applies ReLU(x) = max(0, x), the activation
-    # function from Ch.8 Unit 01 (1.5 Activation Function).
+  
     layers.Conv2D(32, (3, 3), activation="relu", padding="same"),
 
     # MaxPooling2D: sub-samples the feature map (Ch.9 Unit 01, 1.2),
@@ -155,42 +126,27 @@ model = models.Sequential([
     layers.Conv2D(128, (3, 3), activation="relu", padding="same"),
     layers.MaxPooling2D(pool_size=(2, 2)),
 
-    # ---- Fully connected (Dense) layers ----
-    # Flatten: the slides note "the input of the dense layer is rank 2,
-    # i.e. [batch_size x number of input units]" - Flatten reshapes our
-    # 3D feature maps into that required 2D shape.
+    
     layers.Flatten(),
 
-    # A standard fully-connected (dense) layer, same as a DMLP layer
-    # from Ch.8. ReLU activation again.
+   
     layers.Dense(128, activation="relu"),
 
-    # Dropout (Ch.9 Unit 01, 1.3): randomly disables 40% of neurons
-    # during training only, to reduce overfitting - the model can't
-    # rely too heavily on any single neuron.
+  
     layers.Dropout(0.4),
 
-    # Output layer: one neuron per class (29 total), with softmax
-    # activation (Ch.8 Unit 01, 1.5) converting raw scores into a
-    # probability distribution that sums to 1 across all classes.
+ 
     layers.Dense(num_classes, activation="softmax"),
 ])
 
 # =====================================================================
 # 4. DEFINE THE OPTIMIZER, THEN COMPILE
 # ---------------------------------------------------------------------
-# Your slides explicitly separate this into two steps:
-#   "Define the optimizer and then compile."
-# The optimizer is the algorithm that performs gradient descent
-# (Ch.8 Unit 01) - it uses the error from the loss function to nudge
-# every weight in the network in the direction that reduces error.
-# =====================================================================
+
 optimizer = optimizers.Adam()
 
 # Loss function: measures how wrong a prediction is.
-# Ch.9 Unit 01 explains: "Multi-class classification using integer
-# (sparse) label (not one-hot encoded label) uses
-# SparseCategoricalCrossentropy" - which matches label_mode="int" above.
+
 model.compile(
     optimizer=optimizer,
     loss="sparse_categorical_crossentropy",
@@ -215,10 +171,7 @@ history = model.fit(
 # =====================================================================
 # 6. PLOT THE TRAINING HISTORY 
 # ---------------------------------------------------------------------
-# Your slides show exactly this: Train vs Validation loss, and Train
-# vs Validation accuracy, both plotted against Epoch. `history` (saved
-# from model.fit above) holds these numbers for every epoch.
-# =====================================================================
+
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
 
 ax1.plot(history.history["loss"], label="Train loss")
@@ -242,10 +195,7 @@ print("Saved training curves to training_history.png")
 # =====================================================================
 # 7. EVALUATE ON THE VALIDATION SET AND SAVE THE MODEL
 # ---------------------------------------------------------------------
-# model.evaluate() runs the fully-trained model against val_ds one
-# more time, cleanly. Per your slides: "Returns the 0 = loss value and
-# 1 = metrics value" - that's why we unpack it as (loss, acc) below.
-# =====================================================================
+
 test_results = model.evaluate(val_ds, verbose=1)
 print("\n test accuracy {:.2f}%".format(test_results[1] * 100))
 

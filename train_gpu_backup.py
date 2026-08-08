@@ -4,27 +4,6 @@ train.py
 Trains a Convolutional Neural Network (CNN) to classify sign-language
 images into classes (A-Z, del, space, nothing).
 
-This version is written to match the CNN concepts taught in your
-Samsung Innovation Campus AI course:
-  - Chapter 8, Unit 01: Activation functions, backpropagation & gradient
-    descent, loss functions
-  - Chapter 8, Unit 03: Keras basics (define optimizer -> compile ->
-    fit -> evaluate, verbose, training history)
-  - Chapter 9, Unit 01: Convolutional Neural Network (CNN) - Conv2D,
-    pooling, dropout, building a CNN with TensorFlow/Keras
-
-EXPECTED FOLDER STRUCTURE (next to this script):
-
-    asl_alphabet_train/
-        A/
-            img1.jpg
-            ...
-        B/
-            ...
-        ...
-
-Run:
-    python train.py
 """
 
 import json
@@ -51,12 +30,6 @@ LABELS_OUT = "class_labels.json"
 
 # =====================================================================
 # 2. LOAD AND SPLIT THE DATA
-# ---------------------------------------------------------------------
-# Ch.9 Unit 01 (Building CNN using TensorFlow) shows splitting a
-# dataset into a TRAINING set (used to update weights) and a
-# VALIDATION set (used only to check performance on unseen data - the
-# network never learns from it). We do exactly that here using
-# validation_split, holding back 20% of the images as validation data.
 # =====================================================================
 train_ds = tf.keras.utils.image_dataset_from_directory(
     TRAIN_DIR,
@@ -95,15 +68,6 @@ val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 # =====================================================================
 # 3. BUILD THE CNN (Ch.9, Unit 01: "Building CNN using TensorFlow")
-# ---------------------------------------------------------------------
-# Your slides show this pattern for a CNN:
-#
-#   Input -> Conv -> Pool -> Conv -> Pool -> Flatten -> Dense -> Dense(softmax)
-#
-# We follow the exact same pattern below. The slide's example used
-# MNIST (28x28x1 greyscale digits, 10 classes); we use 128x128x3 color
-# hand-sign photos and 29 classes, so the numbers differ but the
-# structure taught is identical.
 # =====================================================================
 model = models.Sequential([
 
@@ -116,15 +80,7 @@ model = models.Sequential([
     layers.Rescaling(1.0 / 255),
 
     # ---- Data augmentation ----
-    # NOT from the syllabus - added deliberately based on real testing:
-    # confusion_report.py and manual webcam/upload testing showed the
-    # model struggling on photos with different lighting/background than
-    # the training set. These layers randomly vary brightness, contrast,
-    # flip, rotation, and zoom on each training image (training only -
-    # automatically skipped during prediction), so the model sees many
-    # simulated lighting/angle variations of the same photo instead of
-    # only ever seeing one fixed condition per image. This directly
-    # targets the generalization gap identified in testing.
+ 
     layers.RandomFlip("horizontal"),
     layers.RandomRotation(0.08),
     layers.RandomZoom(0.15),
@@ -184,12 +140,6 @@ model = models.Sequential([
 
 # =====================================================================
 # 4. DEFINE THE OPTIMIZER, THEN COMPILE (Ch.8, Unit 03: "AI with Keras")
-# ---------------------------------------------------------------------
-# Your slides explicitly separate this into two steps:
-#   "Define the optimizer and then compile."
-# The optimizer is the algorithm that performs gradient descent
-# (Ch.8 Unit 01) - it uses the error from the loss function to nudge
-# every weight in the network in the direction that reduces error.
 # =====================================================================
 optimizer = optimizers.Adam()
 

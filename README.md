@@ -1,7 +1,7 @@
 # Sign Language to Text Translator
 
 A CNN-based ASL fingerspelling recognizer, built to match the concepts
-taught in SIC AI Chapters 8 (Neural Networks) and 9 (CNNs).
+taught in SIC 
 
 ## 1. Setup
 

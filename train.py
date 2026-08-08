@@ -153,7 +153,6 @@ history1 = model.fit(
 
 # =====================================================================
 # 5b. PHASE 2: FINE-TUNING
-# ---------------------------------------------------------------------
 # Phase 1 taught the new classifier head to use MobileNetV2's existing,
 # generic features. Phase 2 goes a step further: unfreeze the TOP
 # layers of the pretrained base (the more specialized, higher-level
